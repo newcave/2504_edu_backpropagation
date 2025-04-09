@@ -1,5 +1,5 @@
 streamlit
 PILLOW
-matplotlib
+#matplotlib
 numpy
 pandas
