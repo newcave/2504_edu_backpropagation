@@ -3,3 +3,4 @@ PILLOW
 #matplotlib
 numpy
 pandas
+plotly
