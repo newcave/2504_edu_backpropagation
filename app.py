@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import pandas as pd
+import os
 
 st.set_page_config(layout="wide")
 
@@ -14,13 +15,22 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+def show_image(filename, caption):
+    if os.path.exists(filename):
+        st.image(Image.open(filename), caption=caption, use_column_width=True)
+      
 st.title("🔁 역전파 알고리즘 수동 계산 학습 도구")
 st.markdown("""
 이 도구는 간단한 인공신경망 구조에서 순전파, 오차 계산, 역전파, 가중치 업데이트까지의 과정을 **직접 수동 입력**하거나 반복 학습을 실행하며 학습할 수 있도록 구성되어 있습니다.
 """)
 
+show_image("문제의정의.png", "[그림1] 문제의 정의")
+
+
 # --- 입력값 및 초기 가중치 수동 입력 ---
 st.header("1단계: 입력값과 초기 가중치 입력")
+show_image("그림1.png", "[그림1] 초기 구조도")
+
 col1, col2, col3 = st.columns(3)
 with col1:
     x1 = st.number_input("x1", value=0.1)
@@ -49,6 +59,7 @@ with col4:
 
 # --- 학습 반복 ---
 st.header("2단계: 반복 학습 시뮬레이션")
+show_image("그림2.png", "[그림2] 순전파 및 오차 계산")
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -108,6 +119,7 @@ st.info(f"총 오차: {round(error_list[-1], 6)} (감소율: {round((error_list[
 
 # --- 요약 테이블 출력 ---
 st.header("3단계: 50회 단위 학습 요약 테이블")
+show_image("그림3.png", "[그림3] 학습 경과 비교표")
 report_df = pd.DataFrame(report_data)
 st.dataframe(report_df, use_container_width=True)
 
@@ -117,6 +129,8 @@ st.line_chart(pd.DataFrame({
     '출력값 o1': o1_list,
     '출력값 o2': o2_list
 }))
+
+show_image("그림4.png", "[그림4] 출력값 및 오차 변화 그래프")
 
 st.markdown("---")
 st.success("✅ 모든 단계를 수동 또는 반복 학습으로 실습할 수 있습니다. 목표 출력에 가까워지는 과정을 직접 확인해보세요!")
