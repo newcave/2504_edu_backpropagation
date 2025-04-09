@@ -111,24 +111,12 @@ st.header("3단계: 50회 단위 학습 요약 테이블")
 report_df = pd.DataFrame(report_data)
 st.dataframe(report_df, use_container_width=True)
 
-# --- 시각자료 첨부 위치 ---
-st.header("4단계: 관련 시각자료 보기")
-
-image1 = st.file_uploader("📌 최초 신경망 구조 그림 업로드", type=["png", "jpg"])
-if image1:
-    st.image(image1, caption="초기 구조도", use_column_width=True)
-
-image2 = st.file_uploader("📌 1회 순전파 결과 그림 업로드", type=["png", "jpg"])
-if image2:
-    st.image(image2, caption="1회 순전파 결과", use_column_width=True)
-
-image3 = st.file_uploader("📌 2회 역전파 결과 그림 업로드", type=["png", "jpg"])
-if image3:
-    st.image(image3, caption="2회 역전파 결과", use_column_width=True)
-
-image4 = st.file_uploader("📌 엑셀 기반 반복 학습 시각화", type=["png", "jpg"])
-if image4:
-    st.image(image4, caption="엑셀 반복학습 구조", use_column_width=True)
+# --- 간단한 그래프 출력 ---
+st.line_chart(pd.DataFrame({
+    '총 오차': error_list,
+    '출력값 o1': o1_list,
+    '출력값 o2': o2_list
+}))
 
 st.markdown("---")
 st.success("✅ 모든 단계를 수동 또는 반복 학습으로 실습할 수 있습니다. 목표 출력에 가까워지는 과정을 직접 확인해보세요!")
