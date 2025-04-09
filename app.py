@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
+import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 
@@ -59,7 +60,9 @@ error_list = []
 o1_list = []
 o2_list = []
 
-for epoch in range(epochs):
+epoch_range = list(range(epochs))
+
+for epoch in epoch_range:
     # 순전파
     z1 = x1 * w1 + x2 * w3
     h1 = sigmoid(z1)
@@ -94,7 +97,14 @@ st.info(f"총 오차: {round(error_list[-1], 6)} (감소율: {round((error_list[
 
 # --- 그래프 출력 ---
 st.header("3단계: 학습 진행 그래프")
-st.line_chart({"총 오차 (E_total)": error_list, "출력값 o1": o1_list, "출력값 o2": o2_list})
+fig = go.Figure()
+fig.add_trace(go.Scatter(y=error_list, x=epoch_range, mode='lines', name='총 오차 (E_total)'))
+fig.add_trace(go.Scatter(y=o1_list, x=epoch_range, mode='lines', name='출력값 o1'))
+fig.add_trace(go.Scatter(y=o2_list, x=epoch_range, mode='lines', name='출력값 o2'))
+fig.add_trace(go.Scatter(y=[target_o1]*epochs, x=epoch_range, mode='lines', name='목표값 y1', line=dict(dash='dot', color='gray')))
+fig.add_trace(go.Scatter(y=[target_o2]*epochs, x=epoch_range, mode='lines', name='목표값 y2', line=dict(dash='dot', color='lightgray')))
+fig.update_layout(title='학습 진행 시 출력값 및 오차 변화', xaxis_title='Epoch', yaxis_title='값')
+st.plotly_chart(fig, use_container_width=True)
 
 # --- 시각자료 첨부 위치 ---
 st.header("4단계: 관련 시각자료 보기")
