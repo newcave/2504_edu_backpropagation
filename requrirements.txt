@@ -1,6 +1,6 @@
 streamlit
+plotly
 PILLOW
 #matplotlib
 numpy
 pandas
-plotly
