@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
-import plotly.graph_objects as go
+import pandas as pd
 
 st.set_page_config(layout="wide")
 
@@ -30,7 +30,7 @@ with col2:
     target_o2 = st.number_input("실제값 y2 (target_o2)", value=0.6)
 with col3:
     lr = st.number_input("학습률 (learning rate)", value=0.5)
-    epochs = st.slider("학습 반복 횟수 (2 ~ 1000)", min_value=2, max_value=1000, value=10, step=1)
+    epochs = st.slider("학습 반복 횟수 (2 ~ 1000)", min_value=2, max_value=1000, value=100, step=1)
 
 st.subheader("초기 가중치 입력")
 col1, col2, col3, col4 = st.columns(4)
@@ -59,10 +59,9 @@ def sigmoid_deriv(x):
 error_list = []
 o1_list = []
 o2_list = []
+report_data = []
 
-epoch_range = list(range(epochs))
-
-for epoch in epoch_range:
+for epoch in range(1, epochs + 1):
     # 순전파
     z1 = x1 * w1 + x2 * w3
     h1 = sigmoid(z1)
@@ -92,19 +91,25 @@ for epoch in epoch_range:
     o1_list.append(o1)
     o2_list.append(o2)
 
+    # 50회 단위로 결과 저장
+    if epoch % 50 == 0 or epoch == epochs:
+        report_data.append({
+            'Epoch': epoch,
+            '출력값 o1': round(o1, 4),
+            '출력값 o2': round(o2, 4),
+            'y1 오차율(%)': round(abs((target_o1 - o1) / target_o1) * 100, 2),
+            'y2 오차율(%)': round(abs((target_o2 - o2) / target_o2) * 100, 2),
+            '총 오차': round(E_total, 6)
+        })
+
+# --- 출력 요약 ---
 st.success(f"🎯 최종 출력: o1 = {round(o1_list[-1], 4)}, o2 = {round(o2_list[-1], 4)}")
 st.info(f"총 오차: {round(error_list[-1], 6)} (감소율: {round((error_list[0] - error_list[-1]) / error_list[0] * 100, 2)}%)")
 
-# --- 그래프 출력 ---
-st.header("3단계: 학습 진행 그래프")
-fig = go.Figure()
-fig.add_trace(go.Scatter(y=error_list, x=epoch_range, mode='lines', name='총 오차 (E_total)'))
-fig.add_trace(go.Scatter(y=o1_list, x=epoch_range, mode='lines', name='출력값 o1'))
-fig.add_trace(go.Scatter(y=o2_list, x=epoch_range, mode='lines', name='출력값 o2'))
-fig.add_trace(go.Scatter(y=[target_o1]*epochs, x=epoch_range, mode='lines', name='목표값 y1', line=dict(dash='dot', color='gray')))
-fig.add_trace(go.Scatter(y=[target_o2]*epochs, x=epoch_range, mode='lines', name='목표값 y2', line=dict(dash='dot', color='lightgray')))
-fig.update_layout(title='학습 진행 시 출력값 및 오차 변화', xaxis_title='Epoch', yaxis_title='값')
-st.plotly_chart(fig, use_container_width=True)
+# --- 요약 테이블 출력 ---
+st.header("3단계: 50회 단위 학습 요약 테이블")
+report_df = pd.DataFrame(report_data)
+st.dataframe(report_df, use_container_width=True)
 
 # --- 시각자료 첨부 위치 ---
 st.header("4단계: 관련 시각자료 보기")
