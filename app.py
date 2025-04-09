@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
-#import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
@@ -30,7 +29,7 @@ with col2:
     target_o2 = st.number_input("실제값 y2 (target_o2)", value=0.6)
 with col3:
     lr = st.number_input("학습률 (learning rate)", value=0.5)
-    epochs = st.number_input("학습 반복 횟수 (epochs)", value=10, step=1)
+    epochs = st.slider("학습 반복 횟수 (2 ~ 1000)", min_value=2, max_value=1000, value=10, step=1)
 
 st.subheader("초기 가중치 입력")
 col1, col2, col3, col4 = st.columns(4)
@@ -95,7 +94,7 @@ st.info(f"총 오차: {round(error_list[-1], 6)} (감소율: {round((error_list[
 
 # --- 그래프 출력 ---
 st.header("3단계: 학습 진행 그래프")
-st.line_chart({"오차 (E_total)": error_list, "출력값 o1": o1_list, "출력값 o2": o2_list})
+st.line_chart({"총 오차 (E_total)": error_list, "출력값 o1": o1_list, "출력값 o2": o2_list})
 
 # --- 시각자료 첨부 위치 ---
 st.header("4단계: 관련 시각자료 보기")
