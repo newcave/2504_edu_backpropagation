@@ -42,6 +42,11 @@ with col3:
     lr = st.number_input("학습률 (learning rate)", value=0.5)
     epochs = st.slider("학습 반복 횟수 (2 ~ 1000)", min_value=2, max_value=1000, value=100, step=1)
 
+
+show_image("그림1.png", "[그림1] 가중치 입력 ")
+# --- 입력값 및 초기 가중치 수동 입력 ---
+st.header("1단계: 입력값과 초기 가중치 입력")
+
 st.subheader("초기 가중치 입력")
 col1, col2, col3, col4 = st.columns(4)
 with col1:
