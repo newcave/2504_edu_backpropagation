@@ -1,53 +1,141 @@
 import streamlit as st
+from PIL import Image
+import numpy as np
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
 
-# 데이터 파일 경로
-file_paths = {
-    "Johnstone River - Coquette Point": "./Johnstone_river_coquette_point_joined.csv",
-    "Johnstone River - Innisfail": "./Johnstone_river_innisfail_joined.csv",
-    "Mulgrave River - Deeral": "./Mulgrave_river_deeral_joined.csv",
-    "Pioneer - Dumbleton": "./Pioneer_Dumbleton_joined.csv",
-    "Plane Creek - Sucrogen": "./Plane_ck_sucrogen_joined.csv",
-    "Proserpine River - Glen Isla": "./Proserpine_river_glen_isla_joined.csv",
-    "Russell River - East Russell": "./russell_river_east_russell_joined.csv",
-    "Sandy Creek - Homebush": "./sandy_ck_homebush_joined.csv",
-    "Sandy Creek - Sorbellos Road": "./sandy_ck_sorbellos_road_joined.csv",
-    "Tully River - Euramo": "./Tully_river_euramo_joined.csv"
-}
+st.set_page_config(layout="wide")
 
-st.set_page_config(page_title="Water Quality Dashboard", layout="wide")
-st.title("🌊 Water Quality Dashboard")
+# Hide sidebar and footer
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .css-18e3th9 {padding-top: 1rem; padding-bottom: 1rem;}
+    </style>
+""", unsafe_allow_html=True)
 
-# 지점 선택
-dataset_name = st.selectbox("Select a monitoring site:", list(file_paths.keys()))
+def show_image(filename, caption):
+    if os.path.exists(filename):
+        st.image(Image.open(filename), caption=caption, use_column_width=True)
 
-# 데이터 불러오기
-df = pd.read_csv(file_paths[dataset_name])
+st.title("🔁 역전파 알고리즘 수동 계산 학습 도구")
+st.markdown("""
+이 도구는 간단한 인공신경망 구조에서 순전파, 오차 계산, 역전파, 가중치 업데이트까지의 과정을 **직접 수동 입력**하거나 반복 학습을 실행하며 학습할 수 있도록 구성되어 있습니다.
+""")
 
-# 날짜 컬럼이 있는 경우 datetime 형식으로 변환
-if 'Date' in df.columns:
-    df['Date'] = pd.to_datetime(df['Date'])
+show_image("문제의정의.png", "[그림1] 문제의 정의")
 
-# 수질 변수 선택 (숫자형만 필터링)
-numeric_cols = df.select_dtypes(include='number').columns.tolist()
-selected_columns = st.multiselect("Select water quality variables to visualize:", numeric_cols, default=numeric_cols[:2])
 
-# 데이터 테이블 표시
-st.subheader(f"📋 Data Preview for {dataset_name}")
-st.dataframe(df.head(10))
+# --- 입력값 및 초기 가중치 수동 입력 ---
+st.header("1단계: 입력값과 초기 가중치 입력")
+show_image("그림1.png", "[그림1] 초기 구조도")
 
-# 시계열 시각화
-if selected_columns and 'Date' in df.columns:
-    st.subheader("📈 Time Series of Selected Variables")
-    for col in selected_columns:
-        fig, ax = plt.subplots()
-        ax.plot(df['Date'], df[col], label=col)
-        ax.set_xlabel("Date")
-        ax.set_ylabel(col)
-        ax.set_title(f"{col} over Time")
-        ax.legend()
-        st.pyplot(fig)
-else:
-    st.info("Please ensure 'Date' column exists and at least one variable is selected.")
+col1, col2, col3 = st.columns(3)
+with col1:
+    x1 = st.number_input("x1", value=0.1)
+    x2 = st.number_input("x2", value=0.2)
+with col2:
+    target_o1 = st.number_input("실제값 y1 (target_o1)", value=0.4)
+    target_o2 = st.number_input("실제값 y2 (target_o2)", value=0.6)
+with col3:
+    lr = st.number_input("학습률 (learning rate)", value=0.5)
+    epochs = st.slider("학습 반복 횟수 (2 ~ 1000)", min_value=2, max_value=1000, value=100, step=1)
+
+
+show_image("그림1.png", "[그림1] 가중치 입력 ")
+# --- 입력값 및 초기 가중치 수동 입력 ---
+st.header("1단계: 입력값과 초기 가중치 입력")
+
+st.subheader("초기 가중치 입력")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    w1 = st.number_input("w1", value=0.3)
+    w2 = st.number_input("w2", value=0.25)
+with col2:
+    w3 = st.number_input("w3", value=0.4)
+    w4 = st.number_input("w4", value=0.35)
+with col3:
+    w5 = st.number_input("w5", value=0.45)
+    w6 = st.number_input("w6", value=0.4)
+with col4:
+    w7 = st.number_input("w7", value=0.7)
+    w8 = st.number_input("w8", value=0.6)
+
+# --- 학습 반복 ---
+st.header("2단계: 반복 학습 시뮬레이션")
+show_image("그림2.png", "[그림2] 순전파 및 오차 계산")
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_deriv(x):
+    return x * (1 - x)
+
+error_list = []
+o1_list = []
+o2_list = []
+report_data = []
+
+for epoch in range(1, epochs + 1):
+    # 순전파
+    z1 = x1 * w1 + x2 * w3
+    h1 = sigmoid(z1)
+    z2 = x1 * w2 + x2 * w4
+    h2 = sigmoid(z2)
+
+    z3 = h1 * w5 + h2 * w6
+    o1 = sigmoid(z3)
+    z4 = h1 * w7 + h2 * w8
+    o2 = sigmoid(z4)
+
+    # 오차
+    E1 = 0.5 * (target_o1 - o1)**2
+    E2 = 0.5 * (target_o2 - o2)**2
+    E_total = E1 + E2
+
+    # 역전파 (출력층만)
+    d_o1 = -(target_o1 - o1) * sigmoid_deriv(o1)
+    d_o2 = -(target_o2 - o2) * sigmoid_deriv(o2)
+
+    w5 -= lr * d_o1 * h1
+    w6 -= lr * d_o1 * h2
+    w7 -= lr * d_o2 * h1
+    w8 -= lr * d_o2 * h2
+
+    error_list.append(E_total)
+    o1_list.append(o1)
+    o2_list.append(o2)
+
+    # 50회 단위로 결과 저장
+    if epoch % 50 == 0 or epoch == epochs:
+        report_data.append({
+            'Epoch': epoch,
+            '출력값 o1': round(o1, 4),
+            '출력값 o2': round(o2, 4),
+            'y1 오차율(%)': round(abs((target_o1 - o1) / target_o1) * 100, 2),
+            'y2 오차율(%)': round(abs((target_o2 - o2) / target_o2) * 100, 2),
+            '총 오차': round(E_total, 6)
+        })
+
+# --- 출력 요약 ---
+st.success(f"🎯 최종 출력: o1 = {round(o1_list[-1], 4)}, o2 = {round(o2_list[-1], 4)}")
+st.info(f"총 오차: {round(error_list[-1], 6)} (감소율: {round((error_list[0] - error_list[-1]) / error_list[0] * 100, 2)}%)")
+
+# --- 요약 테이블 출력 ---
+st.header("3단계: 50회 단위 학습 요약 테이블")
+show_image("그림3.png", "[그림3] 학습 경과 비교표")
+report_df = pd.DataFrame(report_data)
+st.dataframe(report_df, use_container_width=True)
+
+# --- 간단한 그래프 출력 ---
+st.line_chart(pd.DataFrame({
+    '총 오차': error_list,
+    '출력값 o1': o1_list,
+    '출력값 o2': o2_list
+}))
+
+show_image("그림4.png", "[그림4] 출력값 및 오차 변화 그래프")
+
+st.markdown("---")
+st.success("✅ 모든 단계를 수동 또는 반복 학습으로 실습할 수 있습니다. 목표 출력에 가까워지는 과정을 직접 확인해보세요!")
