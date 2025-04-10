@@ -29,7 +29,7 @@ show_image("문제의정의.png", "[그림1] 문제의 정의")
 
 # --- 입력값 및 초기 가중치 수동 입력 ---
 st.header("1단계: 입력값과 초기 가중치 입력")
-show_image("그림1.png", "[그림1] 초기 구조도")
+show_image("문제의정의.png", "[그림1] 문제의 정의")
 
 col1, col2, col3 = st.columns(3)
 with col1:
